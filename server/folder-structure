@@ -1,0 +1,26 @@
+project-root/
+│
+├── config/
+│   └── db.js             # Mongoose connection setup
+│
+├── controllers/
+│   ├── productController.js   # Handles all product-related logic
+│   ├── categoryController.js  # Handles category and subcategory logic
+│   └── inventoryController.js # Handles inventory-related logic
+│
+├── models/
+│   ├── Product.js        # Product model schema
+│   ├── Inventory.js      # Inventory model schema
+│   ├── Category.js       # Category model schema
+│   └── Subcategory.js    # Subcategory model schema
+│
+├── routes/
+│   ├── productRoutes.js  # Routes for products
+│   ├── categoryRoutes.js # Routes for categories and subcategories
+│   └── inventoryRoutes.js # Routes for inventory
+│
+├── uploads/              # Directory for storing uploaded images
+│
+├── .env                  # Environment variables
+├── index.js             # Main server setup
+└── package.json
