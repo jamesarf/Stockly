@@ -1,1 +1,1 @@
-# Stockly-server
+# Stockly
