@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const Category = () => {
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [categoryName, setCategoryName] = useState('');
     const [subcategoryName, setSubcategoryName] = useState('');
     const [subForCatId, setSubForCatId] = useState('');
@@ -9,8 +10,7 @@ const Category = () => {
 
     const fetchAllCategories = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/categories");
-            console.log("categories", response.data);
+            const response = await axios.get(`${apiUrl}/categories`);
             setCategories(response.data);
         } catch (error) {
             console.error("Error fetching categories:", error);
@@ -19,7 +19,7 @@ const Category = () => {
 
     const handleSubmitCategory = async () => {
         try {
-            const result = await axios.post(`http://localhost:5000/categories`, { name: categoryName });
+            const result = await axios.post(`${apiUrl}/categories`, { name: categoryName });
             setCategoryName('');
             console.log("result", result.data)
             alert('Category added successfully!');
@@ -31,7 +31,7 @@ const Category = () => {
 
     const handleSubmitSubcategory = async (categoryId) => {
         try {
-            await axios.post(`http://localhost:5000/subcategories`, { categoryId, name: subcategoryName });
+            await axios.post(`${apiUrl}/subcategories`, { categoryId, name: subcategoryName });
             setSubcategoryName('');
             setSubForCatId('');
             fetchAllCategories();
@@ -46,7 +46,7 @@ const Category = () => {
         const confirmDelete = window.confirm("Are you sure you want to delete?");
         if(!confirmDelete) return;
         try {
-            await axios.delete(`http://localhost:5000/categories/${categoryId}`);
+            await axios.delete(`${apiUrl}/categories/${categoryId}`);
             setCategories(categories.filter(cat => cat._id !== categoryId));
             alert('Category deleted successfully');
             // fetchAllCategories();
@@ -59,7 +59,7 @@ const Category = () => {
         const confirmDelete = window.confirm("Are you sure you want to delete?");
         if(!confirmDelete) return;
         try {
-            await axios.delete(`http://localhost:5000/subcategories/${subcategoryId}`);
+            await axios.delete(`${apiUrl}/subcategories/${subcategoryId}`);
             alert('Subcategory deleted successfully');
             fetchAllCategories();
             setCategories(prevCategories =>
@@ -76,7 +76,7 @@ const Category = () => {
 
     useEffect(() => {
         fetchAllCategories();
-    }, []);
+    }, [apiUrl]);
 
     return (
         <div>

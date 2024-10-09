@@ -3,6 +3,8 @@
 
 # Ignore the entire node_modules folder in any subfolder
 /node_modules/
+/uploads/*
+!/uploads/.gitkeep
 
 # Ignore all log files in any subfolder
 **/*.log

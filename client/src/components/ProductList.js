@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Loader from './Loader';
 
 function ProductList() {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchBy, setSearchBy] = useState("name");
@@ -12,16 +13,14 @@ function ProductList() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/products");
+      const response = await axios.get(`${apiUrl}/products`);
       if (response.status === 200) {
-        console.log("fetchProducts", response.data);
         setProducts(response.data);
       } else if (response.status === 404) {
         alert(response.message);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
-      alert("Error fetching products");
     } finally {
       setLoading(false);
     }
@@ -32,7 +31,7 @@ function ProductList() {
     if (!confirmDelete) return;
     setLoading(true);
     try {
-      const res = await axios.delete(`http://localhost:5000/products/${id}`);
+      const res = await axios.delete(`${apiUrl}/products/${id}`);
       if (res.status === 204) {
         setTimeout(() => {
           setLoading(false);
@@ -53,17 +52,15 @@ function ProductList() {
     setSearchQuery(event.target.value);
   };
 
-  console.log('products products', products);
   const filteredProducts = products.filter((product) => {
     return String(product[searchBy].name ? product[searchBy].name : product[searchBy])
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
   });
-  console.log('filteredProducts', filteredProducts);
 
   useEffect(() => {
     fetchProducts();
-  }, [searchBy]);
+  }, [searchBy,apiUrl]);
 
   return (
     <div className="container mx-auto p-6">
@@ -108,7 +105,7 @@ function ProductList() {
               <td className="py-2 px-4 border-b">{product.code}</td>
               <td className="py-2 px-4 border-b">
                 <img
-                  src={"http://localhost:5000/uploads/" + product.imageUrl}
+                  src={`${apiUrl}/uploads/${product.imageUrl}`}
                   className="h-12 w-12 object-cover"
                   alt={product.name}
                 />
@@ -119,19 +116,19 @@ function ProductList() {
               <td className="py-2 px-4 border-b">
                 <Link
                   className="bg-blue-500 text-white rounded-md px-2 py-1 mr-2"
-                  to={"product-details/" + product._id}
+                  to={"/product-details/" + product._id}
                 >
                   View
                 </Link>
                 <Link
                   className="bg-green-500 text-white rounded-md px-2 py-1 mr-2"
-                  to={"add-inventory/" + product._id}
+                  to={"/add-inventory/" + product._id}
                 >
                   Add to Inventory
                 </Link>
                 <Link
                   className="bg-yellow-500 text-white rounded-md px-2 py-1 mr-2"
-                  to={"product/" + product._id}
+                  to={"/product/" + product._id}
                 >
                   Update
                 </Link>

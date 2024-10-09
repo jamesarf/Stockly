@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 
 const ProductDetailsPage = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const params = useParams();
   const inputRef = useRef(null);
   const [decrement, setDecrement] = useState({
@@ -12,8 +13,8 @@ const ProductDetailsPage = () => {
   const [product, setProduct] = useState({
     name: "",
     description: "",
-    category: "",
-    subcategory: "",
+    category: {},
+    subcategory: {},
     price: "",
     netWeight: "",
 		grossWeight: "",
@@ -28,9 +29,8 @@ const ProductDetailsPage = () => {
 
   const fetchProductDetails = async () => {
     try {
-      const productResponse = await axios.get(`http://localhost:5000/products/${params.id}`);
+      const productResponse = await axios.get(`${apiUrl}/products/${params.id}`);
 
-      console.log("productResponse", productResponse.data);
       setProduct({
         ...productResponse.data,
       });
@@ -40,10 +40,9 @@ const ProductDetailsPage = () => {
   };
 
   const handleUpdateinventory = async () => {
-    console.log("handleUpdateinventory", decrement);
     if(decrement.quantity > 0 ){
       try{
-        await axios.put(`http://localhost:5000/inventories/${decrement.id}`, 
+        await axios.put(`${apiUrl}/inventories/${decrement.id}`, 
         {
             quantity: decrement.quantity
         }, 
@@ -57,7 +56,7 @@ const ProductDetailsPage = () => {
       }
     }else {
         try {
-          await axios.delete(`http://localhost:5000/inventories/${decrement.id}`);
+          await axios.delete(`${apiUrl}/inventories/${decrement.id}`);
         } catch (error) {
           console.error("Error deleting product:", error);
         }
@@ -94,13 +93,13 @@ const ProductDetailsPage = () => {
   useEffect(() => {
     fetchProductDetails();
     inputRef.current && inputRef.current.focus();
-  }, [params.id]);
+  }, [params.id, apiUrl]);
 
   return (
     <div className="container mt-5">
       <div className="row">
         <div className={calculateTotalQuantity() > 0 ? "col-md-2" : "col-md-6"}>
-          <img src={"http://localhost:5000/uploads/" + product.imageUrl } className="img-fluid" alt={product.name} />
+          <img src={`${apiUrl}/uploads/${product.imageUrl}` } className="img-fluid" alt={product.name} />
         </div>
         <div className={calculateTotalQuantity() > 0 ? "col-md-4" : "col-md-6"}>
           <h2>{product.name}</h2>
