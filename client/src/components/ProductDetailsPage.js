@@ -47,15 +47,17 @@ const ProductDetailsPage = () => {
   };
 
   const handleUpdateInventory = async () => {
+    if (!token) {
+			navigate('/');
+			return;
+		}
     if (decrement.quantity > 0) {
       try {
-        await axios.put(`${apiUrl}/inventories/${decrement.id}`, 
-        {
-            quantity: decrement.quantity
-        }, 
+        await axios.put(`${apiUrl}/inventories/${decrement.id}`, {quantity: decrement.quantity}, 
         {
             headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
             },
         });
       } catch (error) {
@@ -63,7 +65,12 @@ const ProductDetailsPage = () => {
       }
     } else {
       try {
-        await axios.delete(`${apiUrl}/inventories/${decrement.id}`);
+        await axios.delete(`${apiUrl}/inventories/${decrement.id}`, 
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+        });
       } catch (error) {
         console.error("Error deleting inventory:", error);
       }

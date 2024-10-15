@@ -60,8 +60,8 @@ const UpdateProduct = () => {
 	const fetchProductDetails = useCallback(async () => {
 		try {
 		  const response = await axios.get(`${apiUrl}/products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+				headers: { Authorization: `Bearer ${token}` },
+			});
 		  setFormData({
 			...response.data,
 			category: response.data.category._id, // Set category ID

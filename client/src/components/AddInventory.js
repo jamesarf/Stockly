@@ -30,18 +30,15 @@ const AddInventory = () => {
         try {
             const resp = await axios.post(`${apiUrl}/inventories`, formData, {
 				headers: {
-		  			"Authorization": `Bearer ${token}`
+		  			Authorization: `Bearer ${token}`
 				},
 			});
-            console.log(resp);
-
-            // Redirect to the product details page after 2 seconds
-
+            
             setTimeout(() => {
                 setLoading(false); // Stop loading
                 setMessage('Inventory added successfully!'); 
                 setTimeout(() => {
-                    navigate(`/product-details/${productID}`); 
+                    navigate(`/product-details/${productID}`); // Redirect to the product details page after 2 seconds
                 }, 1000); 
             }, 1000);
         } catch (error) {

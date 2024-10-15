@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Category = () => {
     const apiUrl = process.env.REACT_APP_API_URL;
+	const token = localStorage.getItem('StocklyToken');
     const [categoryName, setCategoryName] = useState('');
     const [subcategoryName, setSubcategoryName] = useState('');
     const [subForCatId, setSubForCatId] = useState('');
     const [categories, setCategories] = useState([]);
+    const navigate = useNavigate();
 
     const fetchAllCategories = async () => {
+        if (!token) {
+			navigate('/');
+			return;
+		}
         try {
-            const response = await axios.get(`${apiUrl}/categories`);
+            const response = await axios.get(`${apiUrl}/categories`,{
+				headers: { Authorization: `Bearer ${token}` },
+			  });
             setCategories(response.data);
         } catch (error) {
             console.error("Error fetching categories:", error);
@@ -18,8 +27,14 @@ const Category = () => {
     }
 
     const handleSubmitCategory = async () => {
+        if (!token) {
+			navigate('/');
+			return;
+		}
         try {
-            const result = await axios.post(`${apiUrl}/categories`, { name: categoryName });
+            const result = await axios.post(`${apiUrl}/categories`, { name: categoryName },{
+				headers: { Authorization: `Bearer ${token}` },
+			  });
             setCategoryName('');
             console.log("result", result.data)
             alert('Category added successfully!');
@@ -30,8 +45,14 @@ const Category = () => {
     }
 
     const handleSubmitSubcategory = async (categoryId) => {
+        if (!token) {
+			navigate('/');
+			return;
+		}
         try {
-            await axios.post(`${apiUrl}/subcategories`, { categoryId, name: subcategoryName });
+            await axios.post(`${apiUrl}/subcategories`, { categoryId, name: subcategoryName },{
+				headers: { Authorization: `Bearer ${token}` },
+			  });
             setSubcategoryName('');
             setSubForCatId('');
             fetchAllCategories();
@@ -45,8 +66,14 @@ const Category = () => {
     const handleDeleteCategory = async (categoryId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete?");
         if(!confirmDelete) return;
+        if (!token) {
+			navigate('/');
+			return;
+		}
         try {
-            await axios.delete(`${apiUrl}/categories/${categoryId}`);
+            await axios.delete(`${apiUrl}/categories/${categoryId}`,{
+				headers: { Authorization: `Bearer ${token}` },
+			  });
             setCategories(categories.filter(cat => cat._id !== categoryId));
             alert('Category deleted successfully');
         } catch (error) {
@@ -57,8 +84,14 @@ const Category = () => {
     const handleDeleteSubcategory = async (categoryId, subcategoryId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete?");
         if(!confirmDelete) return;
+        if (!token) {
+			navigate('/');
+			return;
+		}
         try {
-            await axios.delete(`${apiUrl}/subcategories/${subcategoryId}`);
+            await axios.delete(`${apiUrl}/subcategories/${subcategoryId}`,{
+				headers: { Authorization: `Bearer ${token}` },
+			  });
             alert('Subcategory deleted successfully');
             fetchAllCategories();
             setCategories(prevCategories =>

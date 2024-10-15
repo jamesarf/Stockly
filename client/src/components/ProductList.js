@@ -38,8 +38,17 @@ function ProductList() {
     const confirmDelete = window.confirm("Are you sure you want to delete this product?");
     if (!confirmDelete) return;
     setLoading(true);
+    if (!token) {
+      navigate('/');
+      return;
+    }
     try {
-      const res = await axios.delete(`${apiUrl}/products/${id}`);
+      const res = await axios.delete(`${apiUrl}/products/${id}`, 
+      {
+          headers: {
+              Authorization: `Bearer ${token}`
+          },
+      });
       if (res.status === 204) {
         setTimeout(() => {
           setLoading(false);

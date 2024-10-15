@@ -21,7 +21,7 @@ function App() {
         <BrowserRouter>
         <Header/>
           <Routes>
-            <Route path="/" element={ <Dashboard/>}/>
+            <Route path="/" element={ <ProtectedRoute redirectTo="/products" requiresAuth={true}><Dashboard/></ProtectedRoute>}/>
             <Route path="/login" element={ <ProtectedRoute redirectTo="/" requiresAuth={false}><Login/></ProtectedRoute> }/>
             <Route path="/register" element={<ProtectedRoute redirectTo="/" requiresAuth={false}><Register/></ProtectedRoute>} />
             <Route path="/products" element={ <ProtectedRoute redirectTo="/products" requiresAuth={true}><ProductList/></ProtectedRoute> }/>
