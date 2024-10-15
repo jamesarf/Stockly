@@ -1,4 +1,4 @@
 .env
 node_moules/
-/uploads/*
+/uploads/**
 !/uploads/.gitkeep
