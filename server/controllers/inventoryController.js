@@ -3,7 +3,7 @@ const Product = require('../models/Product');
 
 
 const addInventory = async (req, res) => {
-    console.log("addInventory called from routes");
+    console.log("addInventory called from routes", req.body);
     const { productID, quantity, expirationDate } = req.body;
 
     try {

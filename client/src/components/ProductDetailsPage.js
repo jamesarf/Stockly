@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
 const ProductDetailsPage = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
+  const token = localStorage.getItem('StocklyToken');
+  const navigate = useNavigate();
   const params = useParams();
   const inputRef = useRef(null);
   const [decrement, setDecrement] = useState({
@@ -28,8 +30,14 @@ const ProductDetailsPage = () => {
   });
 
   const fetchProductDetails = async () => {
+    if (!token) {
+      navigate('/');
+      return;
+    }
     try {
-      const productResponse = await axios.get(`${apiUrl}/products/${params.id}`);
+      const productResponse = await axios.get(`${apiUrl}/products/${params.id}`,{
+        headers: { Authorization: `Bearer ${token}` },
+      }); 
       setProduct({
         ...productResponse.data,
       });

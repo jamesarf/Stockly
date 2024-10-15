@@ -6,6 +6,7 @@ import Loader from './Loader'; //
 const AddInventory = () => {
     let productID = useParams().id;
     const apiUrl = process.env.REACT_APP_API_URL;
+	const token = localStorage.getItem('StocklyToken');
     const navigate = useNavigate(); // Hook for navigation
     const [formData, setFormData] = useState({
         productID: productID,
@@ -21,9 +22,17 @@ const AddInventory = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+		if (!token) {
+			navigate('/');
+			return;
+		}
         setLoading(true);
         try {
-            const resp = await axios.post(`${apiUrl}/inventories`, formData);
+            const resp = await axios.post(`${apiUrl}/inventories`, formData, {
+				headers: {
+		  			"Authorization": `Bearer ${token}`
+				},
+			});
             console.log(resp);
 
             // Redirect to the product details page after 2 seconds

@@ -6,6 +6,7 @@ import countries from '../countries.js';
 
 const AddProduct = () => {
 	const apiUrl = process.env.REACT_APP_API_URL;
+	const token = localStorage.getItem('StocklyToken');
 	const navigate = useNavigate();
 	const [message, setMessage] = useState('');
 	const [categories, setCategories] = useState([]);
@@ -28,8 +29,14 @@ const AddProduct = () => {
 	});
 
 	const fetchAllCategory = useCallback( async () => {
+		if (!token) {
+			navigate('/');
+			return;
+		}
 		try {
-			const response = await axios.get(`${apiUrl}/categories`);
+			const response = await axios.get(`${apiUrl}/categories`,{
+				headers: { Authorization: `Bearer ${token}` },
+			  });
 			setCategories(response.data);
 		} catch (error) {
 			console.error("Error fetching categories:", error);
@@ -44,6 +51,10 @@ const AddProduct = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		if (!token) {
+			navigate('/');
+			return;
+		}
 		setMessage('Processing');
 		const data = new FormData();
 		Object.entries(formData).forEach(([key, value]) => {
@@ -54,6 +65,7 @@ const AddProduct = () => {
 			const res = await axios.post(`${apiUrl}/products`, data, {
 				headers: {
 					"Content-Type": "multipart/form-data",
+		  			"Authorization": `Bearer ${token}`
 				},
 			});
 			

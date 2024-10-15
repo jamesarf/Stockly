@@ -50,6 +50,7 @@ const getProducts = async (req, res) => {
 
 
 const getProductById = async (req, res) => {
+  console.log("Product Contorller -> getProductById")
   try {
     const product = await Product.findOne({_id: req.params.id}).populate('category').populate('subcategory');
     if (!product) {

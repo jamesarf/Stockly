@@ -6,6 +6,7 @@ import countries from '../countries';
 
 const UpdateProduct = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
+  const token = localStorage.getItem('StocklyToken');
   const navigate = useNavigate();
   const { id } = useParams();
   const [message, setMessage] = useState('');
@@ -28,8 +29,14 @@ const UpdateProduct = () => {
   });
 	
   const fetchAllCategory = useCallback( async (category) => {
+	if (!token) {
+        navigate('/');
+        return;
+    }
     try {
-      const response = await axios.get(`${apiUrl}/categories`);
+      const response = await axios.get(`${apiUrl}/categories`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setCategories(response.data);
 		if(category){
 			const filteredCategories = response.data.filter(cat => cat._id === category);
@@ -52,7 +59,9 @@ const UpdateProduct = () => {
 
 	const fetchProductDetails = useCallback(async () => {
 		try {
-		  const response = await axios.get(`${apiUrl}/products/${id}`);
+		  const response = await axios.get(`${apiUrl}/products/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 		  setFormData({
 			...response.data,
 			category: response.data.category._id, // Set category ID
@@ -85,6 +94,7 @@ const UpdateProduct = () => {
       await axios.put(`${apiUrl}/products/${id}`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
+		  	Authorization: `Bearer ${token}`
         },
       });
       
@@ -112,7 +122,6 @@ const UpdateProduct = () => {
   return (
 		<div className='container mx-auto p-6'>
 			{message && <Loader text={message} />}
-			<h3 className="text-2xl font-semibold mb-6">Add Product</h3>
 			{message && (
                 
                 <div className={`mt-4 p-3 rounded-md ${message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
@@ -120,7 +129,7 @@ const UpdateProduct = () => {
                     
                 </div>
             )}
-			<h3 className="text-2xl font-semibold mb-6">Add Product</h3>
+			<h3 className="text-2xl font-semibold mb-6">Update Product</h3>
 			<form className="bg-white shadow-md rounded-lg p-8" onSubmit={handleSubmit}>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 					{/* Product Name */}

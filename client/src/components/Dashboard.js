@@ -5,6 +5,7 @@ import axios from 'axios';
 function Dashboard() {
     const navigate = useNavigate();
     const apiUrl = `${process.env.REACT_APP_API_URL}/inventories/overview`;
+    const token = localStorage.getItem('StocklyToken');
     const [overview, setOverview] = useState({
       totalProducts: 0,
       expiringProducts: 0,
@@ -12,9 +13,15 @@ function Dashboard() {
     });
 
     const getInventoryOverview = useCallback( async () => {
+        if (!token) {
+        navigate('/');
+        return;
+        }
         try {
             // Simulating API call
-            const response = await axios.get(apiUrl);
+            const response = await axios.get(apiUrl, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
             console.log("API response:", response.data);
             setOverview({
                 totalProducts: response.data.totalProducts,
