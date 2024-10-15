@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import Loader from './Loader';
 import countries from '../countries.js';
 
-
 const AddProduct = () => {
 	const apiUrl = process.env.REACT_APP_API_URL;
-	const [loading, setLoading] = useState(false);
+	const navigate = useNavigate();
+	const [message, setMessage] = useState('');
 	const [categories, setCategories] = useState([]);
 	const [subcategories, setSubcategories] = useState([]);
 	const [formData, setFormData] = useState({
@@ -25,303 +26,234 @@ const AddProduct = () => {
 		image: null,
 		inventory: [],
 	});
-	
-	
 
-	const fetchAllCategory = async () => {
-        try {
-            const response = await axios.get(`${apiUrl}/categories`);
-            setCategories(response.data);
-        } catch (error) {
-            console.error("Error fetching categories:", error);
-        }
-    }
+	const fetchAllCategory = useCallback( async () => {
+		try {
+			const response = await axios.get(`${apiUrl}/categories`);
+			setCategories(response.data);
+		} catch (error) {
+			console.error("Error fetching categories:", error);
+		}
+	}, [apiUrl]);
+
 	const handleSelectCategory = (selectedCategory) => {
 		setFormData({ ...formData, category: selectedCategory })
-		const category = categories.filter((category) => category._id === selectedCategory )
+		const category = categories.filter((category) => category._id === selectedCategory)
 		setSubcategories(category[0].subcategories);
 	}
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setLoading(true);
+		setMessage('Processing');
 		const data = new FormData();
-		data.append("name", formData.name);
-		data.append("description",formData.description);
-		data.append("category", formData.category);
-		data.append("subcategory", formData.subcategory);
-		data.append("price", formData.price);
-		data.append("netWeight", formData.netWeight);
-		data.append("grossWeight", formData.grossWeight);
-		data.append("height", formData.height);
-		data.append("width", formData.width);
-		data.append("length", formData.length);
-		data.append("barcode", formData.barcode);
-		data.append("country", formData.country);
-		data.append("image", formData.image);
-		data.append("inventory", JSON.stringify(formData.inventory));
+		Object.entries(formData).forEach(([key, value]) => {
+			data.append(key, value);
+		});
 
 		try {
 			const res = await axios.post(`${apiUrl}/products`, data, {
-			headers: {
-				"Content-Type": "multipart/form-data",
-			},
-			});
-			setFormData({
-				name: "",
-				description: "",
-				category: "",
-				subcategory: "",
-				price: "",
-				netWeight: "",
-				grossWeight: "",
-				height: "",
-				width: "",
-				length: "",
-				barcode: "",
-				country: "",
-				image: "",
-				inventory: [],
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
 			});
 			
 			setTimeout(() => {
-				setLoading(false);
-				window.location.href = `/product-details/${res.data._id}`;
-			}, 4000);
-		} catch (error) {
-	    	console.error("Error adding product:", error);
-			setTimeout(() => {
-				setLoading(false);
+				setMessage("Added successfully");
+				setTimeout(() => {
+					navigate (`/product-details/${res.data._id}`);
+				}, 2000);
 			}, 2000);
+		} catch (error) {
+			alert();
+			console.error("Error adding product:", error);
+			setMessage('Error adding/updating Product. Please try again.');
 		}
 	};
 
-	
-
 	useEffect(() => {
 		fetchAllCategory();
-	},[formData,apiUrl])
-
+	}, [fetchAllCategory])
 
 	return (
-		<div className='container addProductContainer'>	
-			{loading && <Loader/>}
-			<h3 className="">Add Product</h3>
-			<form className="" onSubmit={handleSubmit}>
-			<div className='row'>
-				<div className='col p-2'>
-					<div className="input-title">
-						<span>Name</span>
+		<div className='container mx-auto p-6'>
+			{message && <Loader text={message} />}
+			<h3 className="text-2xl font-semibold mb-6">Add Product</h3>
+			{message && (
+                
+                <div className={`mt-4 p-3 rounded-md ${message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                    {message}
+                    
+                </div>
+            )}
+			<form className="bg-white shadow-md rounded-lg p-8" onSubmit={handleSubmit}>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+					{/* Product Name */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Name</label>
+						<input
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							type="text"
+							placeholder="Name"
+							value={formData.name}
+							onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+							required
+						/>
 					</div>
-					<input
-						className='form-control'
-						type="text"
-						placeholder="Name"
-						value={formData.name}
-						onChange={(e) =>
-						setFormData({ ...formData, name: e.target.value })
-						}
-						required
-					/>
-				</div>
-			</div>
-			<div className='row'>
-				<div className='col p-2'>
-					<div className="input-title">
-						<span>Description</span>
+					{/* Description */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Description</label>
+						<textarea 
+							className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500"
+							rows="3"
+							placeholder="Description"
+							value={formData.description}
+							onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+						></textarea>
 					</div>
-					<textarea 
-						className="form-control" 
-						rows="3" 
-						type="text"
-						placeholder="Description"
-						value={formData.description}
-						onChange={(e) =>
-						setFormData({ ...formData, description: e.target.value })
-						}>
-					</textarea>
-				</div>
-			</div>
-			<div className='row'>
-				
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-						<span>Category</span>
+					{/* Category */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Category</label>
+						<select
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							value={formData.category}
+							onChange={(e) => handleSelectCategory(e.target.value)}
+						>
+							<option value=''>Select Category</option>
+							{categories.map((category) => (
+								<option key={category._id} value={category._id}>{category.name}</option>
+							))}
+						</select>
 					</div>
-					<select 
-						className='form-control'
-						value={formData.category} 
-						// onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-						onChange={(e) => handleSelectCategory(e.target.value)}
-					>
-						<option value=''>Select Category </option>
-						{categories.map((category) => (
-							<option key={category._id} value={category._id}>{category.name}</option>
-						))}
-					</select>
-				</div>  
-
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-						<span>Sub-category</span>
-					</div>
-						<select 
-							className='form-control'
-							value={formData.subcategory} 
+					{/* Sub-category */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Sub-category</label>
+						<select
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							value={formData.subcategory}
 							onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
 						>
-							<option value=''>Select Sub-category </option>
+							<option value=''>Select Sub-category</option>
 							{subcategories.map((subcategory) => (
 								<option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
 							))}
 						</select>
-				</div>  
-			</div>  
-			  
-			<div className='row'>
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-						<span>Price</span>
 					</div>
-					<input
-					className='form-control'
-					type="number"
-					placeholder="Price"
-					value={formData.price}
-					onChange={(e) =>
-					setFormData({ ...formData, price: e.target.value })
-					}
-					required
-					/>
-				</div>
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-					<span>Net Weight</span>
+					{/* Price */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Price</label>
+						<input
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							type="number"
+							placeholder="Price"
+							value={formData.price}
+							onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+							required
+						/>
 					</div>
-					<input
-					className='form-control'
-					type="number"
-					placeholder="Net Weight"
-					value={formData.netWeight}
-					onChange={(e) =>
-					setFormData({ ...formData, netWeight: e.target.value })
-					}
-					required
-					/>
-				</div>
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-					<span>Gross Weight</span>
+					{/* Net Weight */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Net Weight</label>
+						<input
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							type="number"
+							placeholder="Net Weight"
+							value={formData.netWeight}
+							onChange={(e) => setFormData({ ...formData, netWeight: e.target.value })}
+							required
+						/>
 					</div>
-					<input
-					className='form-control'
-					type="number"
-					placeholder="Gross Weight"
-					value={formData.grossWeight}
-					onChange={(e) =>
-					setFormData({ ...formData, grossWeight: e.target.value })
-					}
-					required
-					/>
-				</div>
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-						<span>Height</span>
+					{/* Gross Weight */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Gross Weight</label>
+						<input
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							type="number"
+							placeholder="Gross Weight"
+							value={formData.grossWeight}
+							onChange={(e) => setFormData({ ...formData, grossWeight: e.target.value })}
+							required
+						/>
 					</div>
-					<input
-					className='form-control'
-					type="number"
-					placeholder="Height"
-					value={formData.height}
-					onChange={(e) =>
-					setFormData({ ...formData, height: e.target.value })
-					}
-					required
-					/>
-				</div>
-					
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-						<span>Width</span>
+					{/* Dimensions */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Height</label>
+						<input
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							type="number"
+							placeholder="Height"
+							value={formData.height}
+							onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+							required
+						/>
 					</div>
-					<input
-					className='form-control'
-					type="number"
-					placeholder="Width"
-					value={formData.width}
-					onChange={(e) =>
-						setFormData({ ...formData, width: e.target.value })
-					}
-					required
-					/>
-				</div>
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-						<span>Length</span>
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Width</label>
+						<input
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							type="number"
+							placeholder="Width"
+							value={formData.width}
+							onChange={(e) => setFormData({ ...formData, width: e.target.value })}
+							required
+						/>
 					</div>
-					<input
-					className='form-control'
-					type="number"
-					placeholder="Length"
-					value={formData.length}
-					onChange={(e) =>
-						setFormData({ ...formData, length: e.target.value })
-					}
-					required
-					/>
-				</div>
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-						<span>Barcode</span>
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Length</label>
+						<input
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							type="number"
+							placeholder="Length"
+							value={formData.length}
+							onChange={(e) => setFormData({ ...formData, length: e.target.value })}
+							required
+						/>
 					</div>
-					<input
-						className='form-control'
-						type="text"
-						placeholder="Barcode"
-						value={formData.barcode}
-						onChange={(e) =>
-							setFormData({ ...formData, barcode: e.target.value })
-						}
-					/>
-				</div>
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-						<span>Country</span>
+					{/* Barcode */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Barcode</label>
+						<input
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							type="text"
+							placeholder="Barcode"
+							value={formData.barcode}
+							onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+						/>
 					</div>
-					<select
-						className='form-control'
-						value={formData.country}
-						onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-					>
-						<option value=''>Select Country</option>
-						{countries.map((country, index) => (
-							<option key={index} value={country}>{country}</option>
-						))}
-					</select>
-				</div>
-				<div className='col-md-4 p-2'>
-					<div className="input-title">
-						<span>Image</span>
+					{/* Country */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Country</label>
+						<select
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							value={formData.country}
+							onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+						>
+							<option value=''>Select Country</option>
+							{countries.map((country, index) => (
+								<option key={index} value={country}>{country}</option>
+							))}
+						</select>
 					</div>
-					<input
-					className='form-control'
-					type="file"
-					accept="image/*"
-					onChange={(e) =>
-					setFormData({ ...formData, image: e.target.files[0] })
-					}
-					required
-					/>
+					{/* Image */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700">Product Image</label>
+						<input
+							className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500'
+							type="file"
+							onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+						/>
+					</div>
 				</div>
-			</div>
-			  
-			  
-			  <button className="btn btn-success" type="submit">
-			    Add Product
-			  </button>
+
+				{/* Submit Button */}
+				<button
+					type="submit"
+					className="mt-6 w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition duration-200"
+				>
+					Add Product
+				</button>
 			</form>
 		</div>
-	)
-}
+	);
+};
 
 export default AddProduct;

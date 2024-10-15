@@ -24,7 +24,6 @@ const addProduct =  async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  console.log('updateProduct')
   const updates = { ...req.body };
   if (req.file) {
     updates.imageUrl = req.file.filename;

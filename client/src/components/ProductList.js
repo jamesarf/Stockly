@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Loader from './Loader';
 
 function ProductList() {
@@ -9,11 +9,19 @@ function ProductList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchBy, setSearchBy] = useState("name");
   const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem('StocklyToken');
+  const navigate = useNavigate();
 
   const fetchProducts = async () => {
     setLoading(true);
+    if (!token) {
+      navigate('/');
+      return;
+    }
     try {
-      const response = await axios.get(`${apiUrl}/products`);
+      const response = await axios.get(`${apiUrl}/products`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (response.status === 200) {
         setProducts(response.data);
       } else if (response.status === 404) {

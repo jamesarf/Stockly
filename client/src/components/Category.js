@@ -49,7 +49,6 @@ const Category = () => {
             await axios.delete(`${apiUrl}/categories/${categoryId}`);
             setCategories(categories.filter(cat => cat._id !== categoryId));
             alert('Category deleted successfully');
-            // fetchAllCategories();
         } catch (error) {
             console.error("Error deleting category:", error);
         }
@@ -79,110 +78,102 @@ const Category = () => {
     }, [apiUrl]);
 
     return (
-        <div>
-            <div className="d-flex flex-row justify-content-center">
-                <div className="p-2">
-                    <input 
-                        type="text" 
-                        className="form-control" 
-                        id="inputCategory" 
-                        placeholder={!categoryName && "Type category name here.."}
-                        onChange={(e) => setCategoryName(e.target.value)}
-                        value={categoryName}
-                    />
-                </div>
-                <div className="p-2">
-                    <button 
-                        className="btn btn-primary mb-2"
-                        onClick={() => handleSubmitCategory()}
-                    >
-                        Add Category
-                    </button>
-                </div>
+        <div className="flex flex-col items-center py-6">
+            <div className="flex space-x-4 mb-4">
+                <input
+                    type="text"
+                    className="border rounded-md p-2 w-64 focus:outline-none focus:ring focus:ring-blue-200"
+                    placeholder={!categoryName && "Type category name to add"}
+                    onChange={(e) => setCategoryName(e.target.value)}
+                    value={categoryName}
+                />
+                <button
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+                    onClick={() => handleSubmitCategory()}
+                >
+                    Add Category
+                </button>
             </div>
-            <div className="d-flex flex-row justify-content-center">
-                <div className="p-2">
-                    <table 
-                    className="table table-bordered border-primary"
-                    >
-                        <thead className="thead-light">
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Category</th>
-                                <th scope="col">Subcategories</th>
-                                <th scope="col">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {categories.map((category, index) => (
-                                <tr key={category._id}>
-                                    <th scope="row">{index + 1}</th>
-                                    <td>{category.name}</td>
-                                    <td>
-                                        <ul style={{ listStyleType: "none", minWidth: '385px', paddingLeft:'0' }}>
-                                            {category.subcategories.map((subcategory, index) => (
-                                                <li key={subcategory._id} className="p-1 d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <span className="fw-bold">{index+1}.</span>
-                                                        <span className="p-3">{subcategory.name}</span>
-                                                    </div>
-                                                    
-                                                    <button 
-                                                        className="btn btn-sm btn-danger" 
-                                                        onClick={() => handleDeleteSubcategory(category._id, subcategory._id)}
-                                                    >
-                                                        <i class="fas fa-times"></i>
-                                                    </button></li>
-                                            ))}
-                                        </ul>
-                                        {subForCatId === category._id && 
-                                            <div className="input-group">
-                                                <input 
-                                                    type="text" 
-                                                    className="form-control" 
-                                                    placeholder="Add subcategory..." 
-                                                    value={subcategoryName}
-                                                    onChange={(e) => setSubcategoryName(e.target.value)}
-                                                />
-                                                <div className="input-group-append">
-                                                    <button 
-                                                        className="btn btn-primary"
-                                                        onClick={() => handleSubmitSubcategory(category._id)}
-                                                    >
-                                                        Add
-                                                    </button>
-                                                    <button 
-                                                        className="btn btn-danger mx-2"
-                                                        onClick={() => setSubForCatId('')}
-                                                    >
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
+
+            <div className="w-full max-w-4xl">
+                <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <thead>
+                        <tr className="bg-gray-100">
+                            <th className="py-3 px-4 text-left font-semibold text-gray-600">#</th>
+                            <th className="py-3 px-4 text-left font-semibold text-gray-600">Category</th>
+                            <th className="py-3 px-4 text-left font-semibold text-gray-600">Subcategories</th>
+                            <th className="py-3 px-4 text-left font-semibold text-gray-600">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {categories.map((category, index) => (
+                            <tr key={category._id} className="border-t border-gray-200">
+                                <td className="py-3 px-4">{index + 1}</td>
+                                <td className="py-3 px-4">{category.name}</td>
+                                <td className="py-3 px-4">
+                                    <ul className="space-y-2">
+                                        {category.subcategories.map((subcategory, index) => (
+                                            <li key={subcategory._id} className="flex justify-between items-center">
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="font-bold">{index + 1}.</span>
+                                                    <span>{subcategory.name}</span>
                                                 </div>
-                                            </div>
-                                        }
-                                    </td>
-                                    <td>
-                                        <button 
-                                            className="btn btn-sm btn-danger me-2"
+                                                <button
+                                                    className="bg-red-500 text-white px-4 py-2 ml-2 rounded-md hover:bg-red-600 transition"
+                                                    onClick={() => handleDeleteSubcategory(category._id, subcategory._id)}
+                                                >
+                                                    <i className="fas fa-times"></i>
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    {subForCatId === category._id && (
+                                        <div className="flex mt-2">
+                                            <input
+                                                type="text"
+                                                className="border rounded-l-md p-2 w-full focus:outline-none focus:ring focus:ring-blue-200"
+                                                placeholder="Add subcategory..."
+                                                value={subcategoryName}
+                                                onChange={(e) => setSubcategoryName(e.target.value)}
+                                            />
+                                            <button
+                                                className="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 transition"
+                                                onClick={() => handleSubmitSubcategory(category._id)}
+                                            >
+                                                Add
+                                            </button>
+                                            <button
+                                                className="bg-red-500 text-white px-4 py-2 ml-2 rounded-md hover:bg-red-600 transition"
+                                                onClick={() => setSubForCatId('')}
+                                            >
+                                                <i className="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    )}
+                                </td>
+                                <td className="py-3 px-4">
+                                    <div className="space-x-2">
+                                        <button
+                                            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
                                             onClick={() => handleDeleteCategory(category._id)}
                                         >
-                                            Del Cat
+                                            Del Category
                                         </button>
-                                        <button 
-                                            className="btn btn-sm btn-success"
+                                        <button
+                                            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
                                             onClick={() => setSubForCatId(category._id)}
                                         >
                                             Add Sub-cat
                                         </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );
-}
+};
 
 export default Category;

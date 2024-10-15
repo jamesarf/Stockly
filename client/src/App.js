@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./components/Dashboard";
 import Register from "./components/Register";
 import Login from "./components/Login";
@@ -10,7 +11,6 @@ import Category from "./components/Category";
 import UpdateProduct from "./components/UpdateProduct";
 import ProductDetailsPage from "./components/ProductDetailsPage";
 import AddInventory from "./components/AddInventory";
-import Loader from './components/Loader';
 import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -21,16 +21,15 @@ function App() {
         <BrowserRouter>
         <Header/>
           <Routes>
-            <Route path="/" element={ <Dashboard/> }/>
-            <Route path="/register" element={ <Register/> }/>
-            <Route path="/login" element={ <Login/> }/>
-            <Route path="/products" element={ <ProductList/> }/>
-            <Route path="/loader" element={ <Loader/> }/>
-            <Route path="/add-product" element={<AddProduct/>}/>
-            <Route path="/category" element={<Category/>}/>
-            <Route path="/product/:id" element={<UpdateProduct/>}/>
-            <Route path="/product-details/:id" element={<ProductDetailsPage/>}/>
-            <Route path="/add-inventory/:id" element={<AddInventory/>}/>
+            <Route path="/" element={ <Dashboard/>}/>
+            <Route path="/login" element={ <ProtectedRoute redirectTo="/" requiresAuth={false}><Login/></ProtectedRoute> }/>
+            <Route path="/register" element={<ProtectedRoute redirectTo="/" requiresAuth={false}><Register/></ProtectedRoute>} />
+            <Route path="/products" element={ <ProtectedRoute redirectTo="/products" requiresAuth={true}><ProductList/></ProtectedRoute> }/>
+            <Route path="/add-product" element={<ProtectedRoute redirectTo="/add-product" requiresAuth={true}><AddProduct/></ProtectedRoute>}/>
+            <Route path="/category" element={<ProtectedRoute redirectTo="/category" requiresAuth={true}><Category/></ProtectedRoute>}/>
+            <Route path="/product/:id" element={<ProtectedRoute redirectTo="/product/:id" requiresAuth={true}><UpdateProduct/></ProtectedRoute>}/>
+            <Route path="/product-details/:id" element={<ProtectedRoute redirectTo="/product-details/:id" requiresAuth={true}><ProductDetailsPage/></ProtectedRoute>}/>
+            <Route path="/add-inventory/:id" element={<ProtectedRoute redirectTo="/add-inventory/:id" requiresAuth={true}><AddInventory/></ProtectedRoute>}/>
           </Routes>
         </BrowserRouter>
     </div>

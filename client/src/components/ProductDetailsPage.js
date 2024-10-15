@@ -17,20 +17,19 @@ const ProductDetailsPage = () => {
     subcategory: {},
     price: "",
     netWeight: "",
-		grossWeight: "",
+    grossWeight: "",
     height: "",
     width: "",
     length: "",
-		barcode: "",
-		country: "",
-    image: null,
-		inventories: [],
+    barcode: "",
+    country: "",
+    imageUrl: null,
+    inventories: [],
   });
 
   const fetchProductDetails = async () => {
     try {
       const productResponse = await axios.get(`${apiUrl}/products/${params.id}`);
-
       setProduct({
         ...productResponse.data,
       });
@@ -39,9 +38,9 @@ const ProductDetailsPage = () => {
     }
   };
 
-  const handleUpdateinventory = async () => {
-    if(decrement.quantity > 0 ){
-      try{
+  const handleUpdateInventory = async () => {
+    if (decrement.quantity > 0) {
+      try {
         await axios.put(`${apiUrl}/inventories/${decrement.id}`, 
         {
             quantity: decrement.quantity
@@ -51,19 +50,18 @@ const ProductDetailsPage = () => {
                 "Content-Type": "application/json",
             },
         });
-      }catch(error){
-        console.error("Error updating Inventory",error);
+      } catch (error) {
+        console.error("Error updating inventory", error);
       }
-    }else {
-        try {
-          await axios.delete(`${apiUrl}/inventories/${decrement.id}`);
-        } catch (error) {
-          console.error("Error deleting product:", error);
-        }
+    } else {
+      try {
+        await axios.delete(`${apiUrl}/inventories/${decrement.id}`);
+      } catch (error) {
+        console.error("Error deleting inventory:", error);
+      }
     }
-    setDecrement({id:'',quantity:''});
+    setDecrement({ id: '', quantity: '' });
     fetchProductDetails();
-    
   }
 
   const calculateTotalQuantity = () => {
@@ -73,102 +71,162 @@ const ProductDetailsPage = () => {
     });
     return totalQuantity;
   };  
+
   const calculateDueDate = (d) => {
     const currentDate = new Date();
     const otherDate = new Date(d);
     const differenceInMilliseconds = otherDate.getTime() - currentDate.getTime();
     const differenceInDays = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
-    return  differenceInDays;
+    return differenceInDays;
   }
 
   const handleQuantityChange = (inventoryId, quantity, value) => {
-    if(value >= 0 && value <= quantity ){
-      setDecrement({...decrement, quantity:value})
-    }else{
+    if (value >= 0 && value <= quantity) {
+      setDecrement({ ...decrement, quantity: value });
+    } else {
       alert(`Quantity must not be less than 0 or greater than ${quantity}`);
-      setDecrement({...decrement, quantity:quantity})
+      setDecrement({ ...decrement, quantity: quantity });
     }
   }
-  
+
   useEffect(() => {
     fetchProductDetails();
     inputRef.current && inputRef.current.focus();
   }, [params.id, apiUrl]);
 
   return (
-    <div className="container mt-5">
-      <div className="row">
-        <div className={calculateTotalQuantity() > 0 ? "col-md-2" : "col-md-6"}>
-          <img src={`${apiUrl}/uploads/${product.imageUrl}` } className="img-fluid" alt={product.name} />
+    <div className="container mx-auto mt-10 px-4">
+      <div className="flex flex-col md:flex-row">
+        {/* Product Image */}
+        <div className={`w-full md:w-1/3 mb-6 md:mb-0 flex justify-center`}>
+          <div className="relative">
+            <img
+              src={`${apiUrl}/uploads/${product.imageUrl}`}
+              className="w-full object-cover rounded-lg shadow-lg transition-transform transform hover:scale-105 duration-300"
+              alt={product.name}
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-25 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <p className="text-white font-semibold">Click to enlarge</p>
+            </div>
+          </div>
         </div>
-        <div className={calculateTotalQuantity() > 0 ? "col-md-4" : "col-md-6"}>
-          <h2>{product.name}</h2>
-          <h3>Code: {product.code}</h3>
-          {calculateTotalQuantity() > 0 ? (
-            <p className="text-primary">Available</p>
-          ) : (
-            <p className="text-danger">Stock Out</p>
-          )}
-          <p className="text-muted">Category: {product.category.name}</p>
-          <p className="text-muted">Sub-category: {product.subcategory.name}</p>
-          <h3>${product.price}</h3>
-          <p className="text-muted">{product.description}</p>
-          <p className="text-muted">Net Weight: {product.netWeight} g</p>
-          <p className="text-muted">Gross Weight: {product.grossWeight} g</p>
-          <p className="text-muted">Height: {product.height} cm</p>
-          <p className="text-muted">Width: {product.width} cm</p>
-          <p className="text-muted">Length: {product.length} cm</p>
-            
-          <Link className="btn btn-primary" to={"/product/"+product._id}> Update </Link>
+
+        {/* Product Details */}
+        <div className={`w-full md:w-2/3 flex flex-col justify-between`}>
+          <div className='px-10'>
+            <h2 className="text-3xl font-bold text-gray-900">{product.name}</h2>
+            <h3 className="text-xl text-gray-600 mt-2">Code: {product.code}</h3>
+            {calculateTotalQuantity() > 0 ? (
+              <p className="text-green-500 font-semibold mt-2">In Stock</p>
+            ) : (
+              <p className="text-red-500 font-semibold mt-2">Out of Stock</p>
+            )}
+
+            <div className="mt-4">
+              <p className="text-gray-700"><strong>Category:</strong> {product.category.name}</p>
+              <p className="text-gray-700"><strong>Sub-category:</strong> {product.subcategory.name}</p>
+              <p className="text-gray-700"><strong>Country of Origin:</strong> {product.country}</p>
+              <h3 className="text-xl font-semibold my-4">${product.price}</h3>
+              <p className="text-gray-700">{product.description}</p>
+            </div>
+
+            {/* Dimensions and Weight */}
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <p className="text-gray-700"><strong>Net Weight:</strong> {product.netWeight} g</p>
+              <p className="text-gray-700"><strong>Gross Weight:</strong> {product.grossWeight} g</p>
+              <p className="text-gray-700"><strong>Height:</strong> {product.height} cm</p>
+              <p className="text-gray-700"><strong>Width:</strong> {product.width} cm</p>
+              <p className="text-gray-700"><strong>Length:</strong> {product.length} cm</p>
+            </div>
+
+            {/* Update Button */}
+            <Link
+              className="inline-block mt-6 mr-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 shadow-md"
+              to={`/product/${product._id}`}
+            >
+              Update Product
+            </Link>
+
+            {/* Add to Inventory Button */}
+            <Link
+              className="inline-block mt-6 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 shadow-md"
+              to={`/add-inventory/${product._id}`}
+            >
+              Add Inventory
+            </Link>
+
+          </div>
         </div>
-        { calculateTotalQuantity() > 0 && 
-        <div className="col-md-6">
-            <table className="product-list">
-              <thead>
-                <tr>
-                  <th>Quantity</th>
-                  <th>Expiration Date</th>
-                  <th>Expires in (days)</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {product.inventories
-                  .slice().sort((a, b) => {
-                    const daysA = calculateDueDate(a.expirationDate);
-                    const daysB = calculateDueDate(b.expirationDate);
-                    return daysA - daysB;
-                  }).map((inventory) => (
-                  <tr key={inventory._id} className="product-item" style={{ color: calculateDueDate(inventory.expirationDate) < 31 ? "red" : "inherit" }}>
-                    {inventory._id === decrement.id? (
+      </div>
+
+      {calculateTotalQuantity() > 0 && (
+        <div className="my-10">
+          <table className="min-w-full bg-white border border-gray-300 shadow-lg">
+            <thead>
+              <tr>
+                <th className="py-2 px-4 border-b">Quantity</th>
+                <th className="py-2 px-4 border-b">Expiration Date</th>
+                <th className="py-2 px-4 border-b">Expires in (days)</th>
+                <th className="py-2 px-4 border-b">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {product.inventories
+                .slice()
+                .sort((a, b) => calculateDueDate(a.expirationDate) - calculateDueDate(b.expirationDate))
+                .map((inventory) => (
+                  <tr key={inventory._id} className={calculateDueDate(inventory.expirationDate) < 31 ? "bg-red-100" : ""}>
+                    {inventory._id === decrement.id ? (
                       <td>
-                        <input ref={inputRef} style={{ width: "100px" }} type="number" value={decrement.quantity} onChange={ (e) => handleQuantityChange(inventory._id,inventory.quantity, e.target.value)} />
+                        <input
+                          ref={inputRef}
+                          className="border border-gray-300 rounded w-16"
+                          type="number"
+                          value={decrement.quantity}
+                          onChange={(e) => handleQuantityChange(inventory._id, inventory.quantity, e.target.value)}
+                        />
                       </td>
                     ) : (
-                      <td>{inventory.quantity}</td>
+                      <td className="py-2 px-4 border-b">{inventory.quantity}</td>
                     )}
-                    <td>{inventory.expirationDate.split('T')[0]}</td>
-                    <td>{calculateDueDate(inventory.expirationDate)} days</td>
-                    {inventory._id === decrement.id? (
-                      <td style={{ width: "200px" }}>
-                        <button className='btn btn-sm btn-success m-2' onClick={ () => handleUpdateinventory()} > Confirm </button>
-                        <button className='btn btn-sm btn-danger m-2' onClick={ () => setDecrement({id:'',quantity:''})} > Cancel </button>
+                    <td className="py-2 px-4 border-b">{inventory.expirationDate.split('T')[0]}</td>
+                    <td className="py-2 px-4 border-b">{calculateDueDate(inventory.expirationDate)} days</td>
+                    {inventory._id === decrement.id ? (
+                      <td className="py-2 px-4 border-b">
+                        <button
+                          className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                          onClick={handleUpdateInventory}
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 ml-2"
+                          onClick={() => setDecrement({ id: '', quantity: '' })}
+                        >
+                          Cancel
+                        </button>
                       </td>
                     ) : (
-                      <td>
-                        <button className='btn btn-sm btn-primary m-2' onClick={ () => setDecrement({id:inventory._id,quantity:inventory.quantity})} > Decrese </button>
+                      <td className="py-2 px-4 border-b">
+                        <button
+                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                          onClick={() => setDecrement({ id: inventory._id, quantity: inventory.quantity })}
+                        >
+                          Decrease
+                        </button>
                       </td>
                     )}
                   </tr>
                 ))}
-                <tr>
-                  <td colSpan="4" className='fw-bold'>Total: {calculateTotalQuantity()}</td>
-                </tr>
-              </tbody>
-            </table>
+              <tr>
+                <td colSpan="4" className="py-2 px-4 font-semibold">
+                  Total: {calculateTotalQuantity()}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        }
-      </div>
+      )}
     </div>
   );
 };
