@@ -30,7 +30,6 @@ const getCategories = async (req, res) => {
       }
       res.sendStatus(204);
     } catch (error) {
-      console.error("Error deleting category:", error);
       res.status(500).send("Internal Server Error");
     }
   };

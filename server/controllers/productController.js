@@ -2,7 +2,6 @@ const Product = require('../models/Product');
 const Inventory = require('../models/Inventory');
 
 const addProduct =  async (req, res) => {
-  console.log("addProduct");
   const imageUrl = req.file.filename;
   const { name, description, category, subcategory, price, netWeight, grossWeight, height, width, length, barcode, country } = req.body;
   
@@ -50,7 +49,6 @@ const getProducts = async (req, res) => {
 
 
 const getProductById = async (req, res) => {
-  console.log("Product Contorller -> getProductById")
   try {
     const product = await Product.findOne({_id: req.params.id}).populate('category').populate('subcategory');
     if (!product) {

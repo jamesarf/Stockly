@@ -16,7 +16,6 @@ const addSubcategory = async (req, res) => {
       await category.save();
       res.status(201).json(subcategory);
   } catch (error) {
-      console.error("Error adding subcategory:", error);
       res.status(500).send("Internal Server Error");
   }
 };
@@ -31,11 +30,9 @@ const deleteSubcategory = async (req, res) => {
         { new: true }
       );
     }catch(error){
-      console.error("Error updating category:", error);
       res.status(500).send("Internal Server Error");
     }
   } catch (error) {
-    console.error("Error deleting subcategory:", error);
     res.status(500).send("Internal Server Error");
   }
 };

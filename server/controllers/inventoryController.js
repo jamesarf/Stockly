@@ -3,7 +3,6 @@ const Product = require('../models/Product');
 
 
 const addInventory = async (req, res) => {
-    console.log("addInventory called from routes", req.body);
     const { productID, quantity, expirationDate } = req.body;
 
     try {
@@ -27,37 +26,9 @@ const addInventory = async (req, res) => {
         }
 
     } catch (err) {
-        console.error(err); // Log the error for debugging
         res.status(400).send(err); // Send a 400 error response
     }
 };
-
-
-
-
-// const getInventories = async (req, res) => {
-//     try {
-//         const inventories = await Inventory.find({ ...req.query });
-
-//         res.status(200).json(inventories);
-//     } catch (err) {
-//         res.status(400).send(err);
-//     }
-// };
-
-// const getInventoryByIdExpDate = async (req, res) => {
-//     try {
-//         const inventories = await Inventory.find({ productID: req.params.productID, expirationDate: req.params.expirationDate });
-//         if (inventories.length === 0) {
-//             return res.status(404).send({ message: "No inventory found" });
-//         }
-//         res.status(200).json(inventories);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send(err);
-//     }
-// };
-
 
 
 const updateInventory = async (req, res) => {
