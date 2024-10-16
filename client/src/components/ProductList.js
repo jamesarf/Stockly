@@ -24,6 +24,7 @@ function ProductList() {
       });
       if (response.status === 200) {
         setProducts(response.data);
+        console.log("Products", response.data);
       } else if (response.status === 404) {
         alert(response.message);
       }
@@ -43,11 +44,8 @@ function ProductList() {
       return;
     }
     try {
-      const res = await axios.delete(`${apiUrl}/products/${id}`, 
-      {
-          headers: {
-              Authorization: `Bearer ${token}`
-          },
+      const res = await axios.delete(`${apiUrl}/products/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.status === 204) {
         setTimeout(() => {
@@ -77,16 +75,16 @@ function ProductList() {
 
   useEffect(() => {
     fetchProducts();
-  }, [searchBy,apiUrl]);
+  }, [searchBy, apiUrl]);
 
   return (
     <div className="container mx-auto p-6">
-      <h3 className="text-2xl font-bold mb-4">Product List</h3>
+      <h3 className="text-2xl font-bold mb-6">Product List</h3>
       {loading && <Loader text="Loading" />}
-      
-      <div className="flex items-center mb-4">
+
+      <div className="flex items-center mb-6">
         <input
-          className="border rounded-md p-2 mr-2 w-full"
+          className="border rounded-md p-2 w-full mr-2"
           type="text"
           placeholder={`Search by products ${searchBy}...`}
           value={searchQuery}
@@ -101,62 +99,63 @@ function ProductList() {
           <option value="name">Name</option>
           <option value="category">Category</option>
           <option value="price">Price</option>
-          {/* Add other options as needed */}
         </select>
       </div>
 
       <table className="min-w-full bg-white border border-gray-200 rounded-md">
         <thead>
           <tr className="bg-gray-200 text-gray-600">
-            <th className="py-2 px-4 border-b">Code</th>
-            <th className="py-2 px-4 border-b">Image</th>
-            <th className="py-2 px-4 border-b">Name</th>
-            <th className="py-2 px-4 border-b">Category</th>
-            <th className="py-2 px-4 border-b">Price</th>
-            <th className="py-2 px-4 border-b">Actions</th>
+            <th className="py-3 px-4 border-b">Code</th>
+            <th className="py-3 px-4 border-b">Image</th>
+            <th className="py-3 px-4 border-b">Name</th>
+            <th className="py-3 px-4 border-b">Category</th>
+            <th className="py-3 px-4 border-b">Price</th>
+            <th className="py-3 px-4 border-b">Actions</th>
           </tr>
         </thead>
         <tbody>
           {filteredProducts.map((product) => (
             <tr key={product._id} className="hover:bg-gray-100">
-              <td className="py-2 px-4 border-b">{product.code}</td>
-              <td className="py-2 px-4 border-b">
+              <td className="py-3 px-4 border-b">{product.code}</td>
+              <td className="py-3 px-4 border-b">
                 <img
                   src={`${apiUrl}/uploads/${product.imageUrl}`}
-                  className="h-12 w-12 object-cover"
+                  className="h-16 w-16 object-cover rounded-lg"
                   alt={product.name}
                 />
               </td>
-              <td className="py-2 px-4 border-b">{product.name}</td>
-              <td className="py-2 px-4 border-b">{product.category.name}</td>
-              <td className="py-2 px-4 border-b">¥ {product.price}</td>
-              <td className="py-2 px-4 border-b">
-                <Link
-                  className="bg-blue-500 text-white rounded-md px-2 py-1 mr-2"
-                  to={"/product-details/" + product._id}
-                >
-                  View
-                </Link>
-                <Link
-                  className="bg-green-500 text-white rounded-md px-2 py-1 mr-2"
-                  to={"/add-inventory/" + product._id}
-                >
-                  Add to Inventory
-                </Link>
-                <Link
-                  className="bg-yellow-500 text-white rounded-md px-2 py-1 mr-2"
-                  to={"/product/" + product._id}
-                >
-                  Update
-                </Link>
-
-                <button
-                  className="bg-red-500 text-white rounded-md px-2 py-1"
-                  onClick={() => handleDelete(product._id)}
-                >
-                  Delete
-                </button>
+              <td className="py-3 px-4 border-b">{product.name}</td>
+              <td className="py-3 px-4 border-b">{product.category?.name}</td>
+              <td className="py-3 px-4 border-b">¥ {product.price}</td>
+              <td className="py-3 px-4 border-b">
+                <div className="flex items-center space-x-2">
+                  <Link
+                    className="bg-blue-500 text-white rounded-md px-3 py-2 text-sm hover:bg-blue-600 transition"
+                    to={"/product-details/" + product._id}
+                  >
+                    View
+                  </Link>
+                  <Link
+                    className="bg-green-500 text-white rounded-md px-3 py-2 text-sm hover:bg-green-600 transition"
+                    to={"/add-inventory/" + product._id}
+                  >
+                    Add to Inventory
+                  </Link>
+                  <Link
+                    className="bg-yellow-500 text-white rounded-md px-3 py-2 text-sm hover:bg-yellow-600 transition"
+                    to={"/product/" + product._id}
+                  >
+                    Update
+                  </Link>
+                  <button
+                    className="bg-red-500 text-white rounded-md px-3 py-2 text-sm hover:bg-red-600 transition"
+                    onClick={() => handleDelete(product._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </td>
+
             </tr>
           ))}
         </tbody>

@@ -13,7 +13,7 @@ const UpdateProduct = () => {
   const [categories, setCategories] = useState([]);
 	const [subcategories, setSubcategories] = useState([]);
   const [formData, setFormData] = useState({
-    name: "",
+    	name: "",
 		description: "",
 		category: "",
 		subcategory: "",
@@ -64,8 +64,8 @@ const UpdateProduct = () => {
 			});
 		  setFormData({
 			...response.data,
-			category: response.data.category._id, // Set category ID
-			subcategory: response.data.subcategory._id, // Set sub-category ID
+			category: response.data.category?._id, // Set category ID
+			subcategory: response.data.subcategory?._id, // Set sub-category ID
 		  });
 		} catch (error) {
 		  console.error("Error fetching products:", error);
