@@ -1,5 +1,4 @@
-# Stockly - 
-## Full Stack Inventory Management Application
+# Stockly - Full Stack Inventory Management Application
 
 Stockly is a full stack inventory management system that enables businesses to manage their products, categories, subcategories, and inventories. This project includes both backend and frontend, built with React and Node.js.
 
